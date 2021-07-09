@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="bbcb75cb-f86f-4191-b699-7c36c4056dea" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="924647e3-26f4-42e0-9de8-b1b2479e6c0b" >
+		<http:request-connection protocol="HTTPS" host="api.openweathermap.org" port="443" />
+	</http:request-config>
+	<flow name="ng-forecastingFlow" doc:id="76f3ea42-769a-47c7-a6bc-f1273207effd" >
+		<http:listener doc:name="/GET Weather Details" doc:id="51a25c1a-0bed-4dba-ab7d-86d1ce09de1c" config-ref="HTTP_Listener_config" path="/weather"/>
+		<http:request method="GET" doc:name="/GET StormGlass" doc:id="f59c2bca-c618-4fb3-86ad-e2b0d77f7281" outputMimeType="application/json" config-ref="HTTP_Request_configuration" path="/data/2.5/weather">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"q" : attributes.queryParams.city,
+	"APPID" : "8082bd1f525020bdab761a8c421fb540"
+}]]]></http:query-params>
+		</http:request>
+		<scatter-gather doc:name="Scatter-Gather" doc:id="33e20e44-7160-457b-a86f-e02014834019" >
+			<route >
+				<ee:transform doc:name="XML_JMS_Topic" doc:id="26b113aa-49ea-42b2-8791-66a2915cc359">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/xml
+---
+{
+	weather_details: payload
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+				<jms:publish doc:name="Publish" doc:id="8876b7bd-1ed6-4e1f-9bfc-526f58690b1f" />
+			</route>
+			<route >
+				<ee:transform doc:name="CSV_SQL_DB" doc:id="a48e5066-fc32-4483-ac7e-b37fc110f691" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<db:insert doc:name="Insert" doc:id="8b4c62d4-c18a-4f3f-85d9-9a996ebe1a5f" />
+			</route>
+			<route >
+				<ee:transform doc:name="JSON_Govt" doc:id="219a82df-4199-4da1-adff-0e321ad3729b" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<http:request method="GET" doc:name="Request" doc:id="ababd4f9-dea8-4382-92bf-a8488d92f51e" />
+			</route>
+		</scatter-gather>
+		<logger level="INFO" doc:name="Logger" doc:id="1905378e-7963-4f6c-b4ad-e4b2974f7d37" />
+	</flow>
+</mule>
