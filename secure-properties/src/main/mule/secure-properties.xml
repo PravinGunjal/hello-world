@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
+	<configuration-properties doc:name="Configuration properties" doc:id="6cae128a-6445-4321-a954-8f9769285297" file="${env}.yaml" />
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="3eb3324a-7774-4043-ad5f-e7039ac157d5" >
+		<http:listener-connection host="0.0.0.0" port="${secure::http.port}" />
+	</http:listener-config>
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="0b8249bf-ec14-4f78-be55-61e8210d6af7" file="${env}.yaml" key="${enc.key}" >
+		<secure-properties:encrypt algorithm="Blowfish" />
+	</secure-properties:config>
+	<flow name="secure-propertiesFlow" doc:id="e6b85bb2-e7aa-46dd-8800-cffbf106755a" >
+		<http:listener doc:name="Listener" doc:id="6559d0d6-a667-4f83-a380-895cd0c16bca" config-ref="HTTP_Listener_config" path="${secure::http.path}"/>
+		<set-payload doc:name="Set Payload" doc:id="54c9e87d-20d2-4126-ae22-017b078c4324" value='#["HTTP Port is : ${secure::http.port} and Path is : ${secure::http.path} and Environment is: ${env} and Query Parameters:" ++ attributes.queryParams.name ++ " " ++ attributes.queryParams.surname]'/>
+		<logger level="INFO" doc:name="Logger" doc:id="40fa2358-a927-4a46-8771-e38a044076db" message='#["my name is" ++ payload]]'/>
+	</flow>
+	<flow name="secure-propertiesFlow1" doc:id="bb0c057c-b4c6-4472-b97b-3683ec559722" >
+		<http:listener doc:name="Listener" doc:id="1e24b139-ac76-4eb0-815e-eba8b97242aa" config-ref="HTTP_Listener_config" path="/csv"/>
+		<ee:transform doc:name="Transform Message" doc:id="b1265971-35a4-4831-b1cb-4999c08c27b1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{"key": "value"} ++ payload.sale]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="2ee45c27-49ae-4893-a79c-b321d4f61b83" message="#[payload]"/>
+	</flow>
+	<flow name="secure-propertiesFlow2" doc:id="ca050eac-6e49-4e95-833d-e74ff80fe333" >
+		<http:listener doc:name="Listener" doc:id="58b71379-4db3-4d3a-90cd-3093be682e0d" config-ref="HTTP_Listener_config" path="/batch"/>
+		<set-payload value='#[["Apple","Banana"]]' doc:name='["Apple","Banana"]' doc:id="4ee2a0ff-0b1e-4b71-95b7-66c3d1a21ab5" />
+		<batch:job jobName="secure-propertiesBatch_Job" doc:id="9072ec3b-45a5-4c71-b6c2-becfae036462" >
+			<batch:process-records >
+				<batch:step name="Batch_Step" doc:id="d48ed640-6959-451e-b733-f3a000fad714" >
+					<set-payload value='#[payload ++ "1"]' doc:name='payload ++ "1"' doc:id="b7f78f8c-9e9c-4bc5-8f0f-8f4837be13eb" />
+				</batch:step>
+				<batch:step name="Batch_Step1" doc:id="0f747bb3-a036-4572-bf25-784a19d15959" >
+					<set-payload value='#[payload ++ "2"]' doc:name='payload ++ "2"' doc:id="fa7552fd-14ec-46ba-be77-c7b47778d97c" />
+				</batch:step>
+			</batch:process-records>
+			<batch:on-complete >
+				<ee:transform doc:name="Transform Message" doc:id="be303519-b87b-41b8-a2bc-a2bbc0a65f2c" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<logger level="INFO" doc:name="payload" doc:id="57555694-57b0-4aa8-b2c1-15eba224dcc5" message="#[payload]"/>
+			</batch:on-complete>
+		</batch:job>
+	</flow>
+</mule>

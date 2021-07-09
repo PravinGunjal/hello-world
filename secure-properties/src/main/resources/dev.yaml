@@ -1,0 +1,8 @@
+http:
+  port: "![7KXdUdn37lo=]"
+  path: "/secure"
+db:
+  host: "localhost"
+  port: "1234"
+  user: "user"
+  password: "![Qz+pmNnH9fBeh4P0DL5REA==]"
