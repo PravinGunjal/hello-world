@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="87855312-30ed-40a2-966f-4637eb4e51ac" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="jms-connectorFlow" doc:id="0e0ed7bd-4938-4ce2-a548-eec1c8298e32" >
+		<http:listener doc:name="Listener" doc:id="4fc67548-579a-4fbb-a18b-51d8b60167ab" config-ref="HTTP_Listener_config" path="/jms"/>
+		<jms:publish doc:name="Publish" doc:id="3d9fbd03-2f9a-47aa-99b7-9e0580356031" />
+		<jms:publish-consume doc:name="Publish consume" doc:id="0ecdceab-fb12-4a62-92e1-80f93fca2257" />
+	</flow>
+	<flow name="jms-connectorFlow1" doc:id="ced1d88e-881f-48ff-b890-97486c9a9580" >
+		<jms:consume doc:name="Consume" doc:id="0b3f065f-c5a5-49e1-967f-ef880dd4887e" />
+	</flow>
+	<flow name="jms-connectorFlow3" doc:id="e985cf9d-3d68-4f51-8bdf-c504c67e7a53" >
+		<jms:consume doc:name="Consume" doc:id="10888dd3-e15c-4851-97ae-ac2d96fbe337" />
+		<jms:ack doc:name="Ack" doc:id="faf79510-47f6-4064-affb-7755b4e9a96b" />
+	</flow>
+	<flow name="jms-connectorFlow2" doc:id="e2de65fc-977d-41e3-af2f-1e87789c5063" >
+		<jms:listener doc:name="On New Message" doc:id="6048c036-ae71-4755-b539-61326fe1a7bc" />
+	</flow>
+</mule>
