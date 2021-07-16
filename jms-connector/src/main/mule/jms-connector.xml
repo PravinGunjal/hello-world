@@ -10,17 +10,24 @@ http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/
 	</http:listener-config>
 	<flow name="jms-connectorFlow" doc:id="0e0ed7bd-4938-4ce2-a548-eec1c8298e32" >
 		<http:listener doc:name="Listener" doc:id="4fc67548-579a-4fbb-a18b-51d8b60167ab" config-ref="HTTP_Listener_config" path="/jms"/>
+		<logger level="INFO" doc:name="Logger" doc:id="aaf1822c-dcf8-4665-adf3-29e6c3d751b0" />
 		<jms:publish doc:name="Publish" doc:id="3d9fbd03-2f9a-47aa-99b7-9e0580356031" />
+		<logger level="INFO" doc:name="Logger" doc:id="a7e5b42f-66bb-4922-b896-5524095245b1" />
 		<jms:publish-consume doc:name="Publish consume" doc:id="0ecdceab-fb12-4a62-92e1-80f93fca2257" />
+		<logger level="INFO" doc:name="Logger" doc:id="50214c05-9f0e-4db4-8291-6b7f2826704c" />
 	</flow>
 	<flow name="jms-connectorFlow1" doc:id="ced1d88e-881f-48ff-b890-97486c9a9580" >
 		<jms:consume doc:name="Consume" doc:id="0b3f065f-c5a5-49e1-967f-ef880dd4887e" />
+		<logger level="INFO" doc:name="Logger" doc:id="f213a148-02f0-4fc8-b24c-d0ca88604ab9" />
 	</flow>
 	<flow name="jms-connectorFlow3" doc:id="e985cf9d-3d68-4f51-8bdf-c504c67e7a53" >
 		<jms:consume doc:name="Consume" doc:id="10888dd3-e15c-4851-97ae-ac2d96fbe337" />
+		<logger level="INFO" doc:name="Logger" doc:id="4cf1fdab-5f8b-4bb4-a36e-7e74cee623a4" />
 		<jms:ack doc:name="Ack" doc:id="faf79510-47f6-4064-affb-7755b4e9a96b" />
+		<logger level="INFO" doc:name="Logger" doc:id="4fffe89f-df6d-41c9-a986-0b4a1af89d8d" />
 	</flow>
 	<flow name="jms-connectorFlow2" doc:id="e2de65fc-977d-41e3-af2f-1e87789c5063" >
 		<jms:listener doc:name="On New Message" doc:id="6048c036-ae71-4755-b539-61326fe1a7bc" />
+		<logger level="INFO" doc:name="Logger" doc:id="8c30f730-0625-410d-b38f-c811ca6484d5" />
 	</flow>
 </mule>
