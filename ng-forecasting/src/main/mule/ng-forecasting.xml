@@ -35,7 +35,6 @@ output application/xml
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-				<jms:publish doc:name="Publish" doc:id="8876b7bd-1ed6-4e1f-9bfc-526f58690b1f" />
 			</route>
 			<route >
 				<ee:transform doc:name="CSV_SQL_DB" doc:id="a48e5066-fc32-4483-ac7e-b37fc110f691" >
@@ -47,7 +46,6 @@ output application/java
 }]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>
-				<db:insert doc:name="Insert" doc:id="8b4c62d4-c18a-4f3f-85d9-9a996ebe1a5f" />
 			</route>
 			<route >
 				<ee:transform doc:name="JSON_Govt" doc:id="219a82df-4199-4da1-adff-0e321ad3729b" >
@@ -59,7 +57,6 @@ output application/java
 }]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>
-				<http:request method="GET" doc:name="Request" doc:id="ababd4f9-dea8-4382-92bf-a8488d92f51e" />
 			</route>
 		</scatter-gather>
 		<logger level="INFO" doc:name="Logger" doc:id="1905378e-7963-4f6c-b4ad-e4b2974f7d37" />
