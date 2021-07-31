@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="969d66cb-a24e-4763-98e7-e5bc88816fd1" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<os:object-store name="persistent-os" doc:name="Object store" doc:id="0c0b67d6-4aa3-4efc-9ad7-f62c955d78f1" />
+	<os:object-store name="transient-os" doc:name="Object store" doc:id="179beef1-9b40-4da8-8ed6-ca1dd5659e78" persistent="false" />
+	<flow name="object-storeFlow" doc:id="8ca6b8f3-8569-4c94-8c13-f85cd101537c" >
+		<http:listener doc:name="Listener" doc:id="cb8b08d9-128a-4dfb-b37c-4cd10a8d89e1" config-ref="HTTP_Listener_config" path="/store"/>
+		<os:store doc:name="default-os" doc:id="64ef4c0d-d067-40a7-9100-0912f4922f5b" key="default-os-key">
+			<os:value ><![CDATA[#["default-os-value"]]]></os:value>
+		</os:store>
+		<os:store doc:name="persistent-os" doc:id="7ab0457c-bb5f-42d3-992c-373dbf8e30ae" key="persistent-os-key" objectStore="persistent-os">
+			<os:value ><![CDATA[#["persistent-os-value"]]]></os:value>
+		</os:store>
+		<os:store doc:name="transient-os" doc:id="d7731aac-5d07-4412-a045-dc8275abf2cd" key="transient-os-key" objectStore="transient-os">
+			<os:value ><![CDATA[#["transient-os-value"]]]></os:value>
+		</os:store>
+		<ee:transform doc:name="Transform Message" doc:id="49c77484-0cd5-4c25-91b9-bb94f6e25dcc" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+"Success!"]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="object-storeFlow1" doc:id="80b58277-9806-4e21-9799-41daf544bdd3" >
+		<http:listener doc:name="Listener" doc:id="61bdda33-edbb-4f73-86c1-6fe3447737a0" config-ref="HTTP_Listener_config" path="/get"/>
+		<logger level="INFO" doc:name="Logger" doc:id="23dd2105-f189-49ae-aa42-3f25e367dabc" message="IN of GET OS Value.."/>
+		<choice doc:name="Choice" doc:id="dab1a674-3945-4c39-9894-ae606acc1705" >
+			<when expression='#[attributes.queryParams."os-type" == "default"]'>
+				<os:retrieve-all doc:name="Retrieve all" doc:id="a4d2eeb8-4f54-40ec-8186-54c4c71d1a34" />
+			</when>
+			<when expression='#[attributes.queryParams."os-type" == "persistent"]'>
+				<os:retrieve-all doc:name="Retrieve all" doc:id="fb033b50-e9f3-41aa-ac31-8cb0d0d8b903" objectStore="persistent-os"/>
+			</when>
+			<when expression='#[attributes.queryParams."os-type" == "transient"]'>
+				<os:retrieve-all doc:name="Retrieve all" doc:id="545f2e75-916b-4698-9a61-4684d9284579" objectStore="transient-os"/>
+			</when>
+			<otherwise>
+				<logger level="INFO" doc:name="Logger" doc:id="8969ee68-1575-4f3d-85a3-e92493356152" message="Invalid Query Parameter.!"/>
+			</otherwise>
+		</choice>
+		<ee:transform doc:name="Transform Message" doc:id="54726eb8-5d67-4b6a-8efe-0fd3eea8de2c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="d1707d45-00b3-4f4f-827f-1251bcbd9dd5" message="OUT of GET OS Value.."/>
+	</flow>
+</mule>

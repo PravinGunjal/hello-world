@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:java="http://www.mulesoft.org/schema/mule/java"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="7786793d-e568-4997-a859-4bdfb54d4473" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="doc-to-pdf-generatorFlow" doc:id="755779bb-b284-489f-b3b9-4d656b12304c" >
+		<http:listener doc:name="Listener" doc:id="ec3da242-f1fe-4fb6-9d92-315925b343b6" config-ref="HTTP_Listener_config" path="/doctopdf"/>
+		<java:invoke-static doc:name="Invoke static" doc:id="1386aba6-b50b-47aa-9e6f-dcd6198b84e5" class="com.pravin.ApplyingBorder" method="ApplyingBorderMethod()">
+			<java:args ><![CDATA[#[{
+arg0 : payload as String 
+}]]]></java:args>
+		</java:invoke-static>
+		<ee:transform doc:name="Transform Message" doc:id="606ffe26-e067-4123-baeb-2340e6655993" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="filepath" ><![CDATA[%dw 2.0
+output application/java
+---
+"C:\\AnypointStudio"]]></ee:set-variable>
+				<ee:set-variable variableName="command" ><![CDATA[%dw 2.0
+output application/java
+---
+"Design Document" ++ " " ++ "C:\\AnypointStudio"]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+	</flow>
+</mule>

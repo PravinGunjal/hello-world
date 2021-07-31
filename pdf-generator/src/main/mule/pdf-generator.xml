@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="def83b16-a679-4182-af78-8bdfd40a72e1" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="4522350f-f1a4-421e-8418-fc77c424329e" >
+		<file:connection workingDir="C:\Users\251508\OneDrive - Cognizant\Anypoint-Workspace" />
+	</file:config>
+	<flow name="pdf-generatorFlow" doc:id="518c8bbd-9854-4071-b96f-44a895ddec1d" >
+		<http:listener doc:name="Listener" doc:id="ba9cb6c6-3a43-400b-8448-518b592dc436" config-ref="HTTP_Listener_config" path="/pdf"/>
+		<ee:transform doc:name="Transform Message" doc:id="fa83e3bb-0ae4-4b50-b16c-6d0893b38642" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[import * from dw::core::Binaries
+output multipart/form-data
+---
+{
+parts:{
+	test:{
+		headers:{
+			"Content-Type" : "application/pdf"},
+			content: fromBase64(payload)
+		},
+	}
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="5734b8c5-8808-4860-a7a1-f84180849268" mimeType="application/pdf"/>
+		<file:write doc:name="Write" doc:id="31be6471-a585-4535-81c4-019d3281d75b" config-ref="File_Config" path="#['testfile.pdf']"/>
+	</flow>
+</mule>
